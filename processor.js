@@ -3,26 +3,34 @@ const processor = (function() {
   let fitDefenderCount = (ds) => {
     return ds.teams.map(i => { let players = source.elements.filter(k => k.team_code === i.code); let fd = players.filter(fitDefender); i.fdCount = fd.length; return i})
   };
-  let getPlayers = (type, ds) => {
+  let pDataKeys = ["web_name", "points_per_game", "minutes", "chance_of_playing_next_round", "squad_number", "now_cost"];
+  let getPlayers = (typeCheckFnc, ds) => {
   return ds.teams.map(i => {
       let r = {};
       r.name = i.name;
-      r.defs = source.elements.filter(k => k.team_code === i.code && k.element_type === type)
+      r.players = source.elements.filter(k => k.team_code === i.code && fnc(k.element_type))
                               .sort((a,b) => -a.minutes + b.minutes)
-                              .map(k => {let d = {};
-                                          d.name = k.web_name;
-                                          d.ppg = k.points_per_game;
-                                          d.minutes = k.minutes
-                                          d.chance = k.chance_of_playing_next_round;
-                                          d.number = k.squad_number;
-                                          d.cost = k.now_cost;
-                                          return d});
+                              .map(k => copyKeys(k,pDataKeys));
       return r;
     });
+  };
+  let bestPlayers = (filterFnc, ds) => {
+    let r = {};
+    return ds.elements.filter(i => filterFnc(i))
+                             .map(k => copyKeys(k,pDataKeys))
+                             .sort((a,b) => -a.minutes + b.minutes);
+  };
+  let copyKeys = (obj, keys) => {
+    let r = {};
+    for (let i = 0; i < keys.length; i++){
+      r[keys[i]] = obj[keys[i]];
+    }
+    return r;
   };
   return {
     fitDefender : fitDefender,
     fitDefenderCount : fitDefenderCount,
-    getPlayers : getPlayers
+    getPlayers : getPlayers,
+    bestPlayers : bestPlayers
   };
 }());

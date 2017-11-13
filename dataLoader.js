@@ -4,8 +4,8 @@ const dataLoader = (function(){
 			type: "GET",
 			dataType:"jsonp",
 			url: url,
-			crossDomain:true,
 			jsonp: false,
+			jsonpCallback : 'callback',
 			success: (data) => {
 				console.log(data);
 			}
